@@ -1,0 +1,45 @@
+// Define the pins for the LED strip and motion sensor
+const int motionSensorPin = 2; // Input pin for motion sensor
+const int ledStripPins[] = {3, 4, 5, 6, 7, 8, 9, 10}; // Pins for the LED strip
+
+// Variables to store motion detection status
+bool motionDetected = false;
+unsigned long motionDetectedTime = 0;
+
+// Function to turn on LEDs one by one
+void turnOnLEDsOneByOne() {
+  for (int i = 0; i < 8; i++) {
+    digitalWrite(ledStripPins[i], HIGH); // Turn on LED
+    delay(1000); // Wait for 1 second
+  }
+}
+
+void setup() {
+  // Initialize LED strip pins as outputs
+  for (int i = 0; i < 8; i++) {
+    pinMode(ledStripPins[i], OUTPUT);
+  }
+  
+  // Initialize motion sensor pin as input
+  pinMode(motionSensorPin, INPUT);
+  
+  // Initialize serial communication
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Check for motion detection
+  if (digitalRead(motionSensorPin) == HIGH) {
+    if (!motionDetected) {
+      motionDetected = true;
+      motionDetectedTime = millis();
+      Serial.println("Motion detected!");
+      turnOnLEDsOneByOne(); // Turn on LEDs one by one
+    }
+  } else {
+    if (motionDetected && (millis() - motionDetectedTime >= 14000)) {
+      motionDetected = false;
+      Serial.println("Motion detection stopped.");
+    }
+  }
+}
